@@ -1,1 +1,3 @@
-# jrpm
+# JR Pass Map Tool
+
+How to use this project...
