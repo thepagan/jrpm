@@ -1,0 +1,41 @@
+services:
+  jr-pass-map:
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    ports:
+      - "8082:80"
+    container_name: jr-pass-map
+    restart: unless-stopped
+
+  postgres:
+    build:
+      context: ./db
+      dockerfile: Dockerfile
+    container_name: jrpm-db
+    environment:
+      POSTGRES_DB: jrpm
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./db/init:/docker-entrypoint-initdb.d
+      - ./db/data:/docker-entrypoint-initdb.d/data
+
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    container_name: jrpm-api
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/jrpm
+    depends_on:
+      - postgres
+    ports:
+      - "5050:5050"
+    restart: unless-stopped
+
+volumes:
+  pgdata:
