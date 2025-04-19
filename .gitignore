@@ -33,3 +33,7 @@ Temporary Items
 
 .env
 # End of https://www.toptal.com/developers/gitignore/api/macos
+translate.py
+compare.py
+translations.sql.bak
+missing.sql
