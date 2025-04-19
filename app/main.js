@@ -8,6 +8,7 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 }).addTo(map);
 
 let lineLayer;
+let stationLayer;
 
 function updateLineLayer() {
   if (lineLayer) {
@@ -17,38 +18,27 @@ function updateLineLayer() {
   fetch('http://localhost:5050/api/lines')
     .then(response => response.json())
     .then(data => {
-      const jrOperators = new Set();
-      const allOperators = new Set();
-      let jrCount = 0;
-
-      data.features.forEach(f => {
-        const opRaw = f.properties.n02_003;
-        const op = opRaw ? opRaw.trim() : null;
-
-        if (op) {
-          allOperators.add(op);
-          if (op.includes('旅客鉄道') && !op.includes('貨物')) {
-            jrOperators.add(op);
-            jrCount++;
-          }
-        }
-      });
-
-      console.log("All operators found in line data:", Array.from(allOperators));
-      console.log(`Matching JR passenger lines: ${jrCount}`);
-      console.log("Operators starting with 'JR':", Array.from(jrOperators));
-
-      L.geoJSON(data, {
+      lineLayer = L.geoJSON(data, {
         style: {
-          color: '#333',
+          color: '#0074D9',
           weight: 2
         },
         onEachFeature: (feature, layer) => {
-          const lineName = feature.properties.n02_004 || 'Unknown';
-          const operator = feature.properties.n02_003 || 'Unknown';
-          layer.bindPopup(`<strong>${lineName}</strong><br>${operator}`);
+          const operatorJP = feature.properties.n02_003 || 'Unknown';
+          const operatorEN = feature.properties.n02_003_en || '';
+          const lineNameJP = feature.properties.n02_004 || 'Unknown';
+          const lineNameEN = feature.properties.n02_004_en || '';
+
+          layer.bindPopup(L.popup({ className: 'custom-popup' }).setContent(
+            `<strong>${operatorJP}</strong><br>` +
+            `${operatorEN ? operatorEN + '<br>' : ''}` +
+            `${lineNameJP}<br>` +
+            `${lineNameEN}`
+          ));
         }
-      }).addTo(map);
+      });
+
+      lineLayer.addTo(map);
     });
 }
 
@@ -59,13 +49,21 @@ updateLineLayer();
 fetch('http://localhost:5050/api/stations')
   .then(response => response.json())
   .then(data => {
-    L.geoJSON(data, {
+    stationLayer = L.geoJSON(data, {
       pointToLayer: (feature, latlng) =>
         L.circleMarker(latlng, { radius: 4, fillColor: '#333', color: '#fff', weight: 1, fillOpacity: 0.8 }),
       onEachFeature: (feature, layer) => {
-        const name = feature.properties.n02_005 || 'Unknown';
-        const operator = feature.properties.n02_004 || 'Unknown';
-        layer.bindPopup(`<strong>${name}</strong><br>${operator}`);
+        const nameJP = feature.properties.n02_005 || 'Unknown';
+        const nameEN = feature.properties.n02_005_en || '';
+        const operatorJP = feature.properties.n02_004 || 'Unknown';
+        const operatorEN = feature.properties.n02_004_en || '';
+
+        layer.bindPopup(L.popup({ className: 'custom-popup' }).setContent(
+          `<strong>${nameJP}</strong><br>` +
+          `${nameEN ? nameEN + '<br>' : ''}` +
+          `${operatorJP}<br>` +
+          `${operatorEN}`
+        ));
       }
     }).addTo(map);
   });
