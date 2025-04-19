@@ -12,7 +12,7 @@
 🎯 Minimal fully working offline tool
 - [ ] Load JR stations and lines onto the map
 - [ ] Distinct line coloring based on `name`/`operator`
-- [ ] Basic popup for station info (name + operator)
+- [x] Basic popup for station info (name + operator)
 - [ ] Toggle: Geographic vs schematic view (map layout switcher)
 - [ ] Nozomi/Mizuho toggle to hide excluded trains
 - [ ] Static legend for color-coded lines
