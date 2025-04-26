@@ -7,8 +7,11 @@ services:
       - "8082:80"
     container_name: jr-pass-map
     restart: unless-stopped
+    networks:
+      jrpm-net:
+        ipv4_address: 172.28.0.10
 
-  postgres:
+  db:
     build:
       context: ./db
       dockerfile: Dockerfile
@@ -23,6 +26,9 @@ services:
       - pgdata:/var/lib/postgresql/data
       - ./db/init:/docker-entrypoint-initdb.d
       - ./db/data:/docker-entrypoint-initdb.d/data
+    networks:
+      jrpm-net:
+        ipv4_address: 172.28.0.11
 
   api:
     build:
@@ -30,12 +36,24 @@ services:
       dockerfile: Dockerfile
     container_name: jrpm-api
     environment:
-      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/jrpm
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/jrpm
     depends_on:
-      - postgres
+      - db
     ports:
       - "5050:5050"
     restart: unless-stopped
+    networks:
+      jrpm-net:
+        ipv4_address: 172.28.0.12
 
 volumes:
   pgdata:
+
+networks:
+  jrpm-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.28.0.0/16
+    driver_opts:
+      com.docker.network.driver.mtu: 1450
