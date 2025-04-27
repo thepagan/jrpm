@@ -215,3 +215,4 @@ translations/base_files/
 translations/base_files/*
 translations/*
 .env
+app/config.js

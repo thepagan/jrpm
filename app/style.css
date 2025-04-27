@@ -42,44 +42,67 @@ body {
 }
 
 /* 🚄 JR Line Styling */
+.line-hokkaido,
+.line-east,
+.line-central,
+.line-west,
+.line-shikoku,
+.line-kyushu,
+.line-monorail,
+.line-other,
+.line-shinkansen,
+.line-default {
+  stroke-width: 1.5;
+}
+
 .line-hokkaido {
-  stroke: #FF8C00;
+  stroke: #008080; /* Deep Teal */
   fill: none;
 }
 
 .line-east {
-  stroke: #8A2BE2;
+  stroke: #FF00FF; /* Fuchsia */
   fill: none;
 }
 
 .line-central {
-  stroke: #8A2BE2;
+  stroke: #FFA500; /* Gold/Orange */
   fill: none;
 }
 
 .line-west {
-  stroke: #8A2BE2;
+  stroke: #FF0000; /* Bright Red */
   fill: none;
 }
 
 .line-shikoku {
-  stroke: #FF1493;
+  stroke: #00FFFF; /* Aqua */
   fill: none;
 }
 
 .line-kyushu {
-  stroke: #DC143C;
+  stroke: #DC143C; /* Crimson */
   fill: none;
 }
 
-.line-monorail { /* Orange for Monorail */
-  stroke: #FFA500;
+.line-monorail {
+  stroke: #C0C0C0; /* Silver */
   fill: none;
 }
 
-.line-other { /* Dark Turquoise for non-JR covered lines */
-  stroke: #00CED1;
+.line-other {
+  stroke: #C0C0C0; /* Silver */
   fill: none;
+}
+
+/* 🚅 Shinkansen Line Styling */
+.line-shinkansen {
+  stroke: #9B30FF; /* Electric Purple */
+  fill: none;
+}
+
+.line-shinkansen:hover {
+  filter: brightness(1.6) drop-shadow(0 0 8px #9B30FF);
 }
 
 /* 🚆 Default Line Styling (non-matching operators) */

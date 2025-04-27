@@ -6,15 +6,15 @@ const API_BASE_URL = 'http://localhost:5050';
 const geoJsonOptions = {
   style: (feature) => {
     const name = feature.properties.n02_004_en || '';
-    if (name.includes('Hokkaido Railway Company')) return { className: 'line-hokkaido' };
-    if (name.includes('East Japan Railway Company')) return { className: 'line-east' };
-    if (name.includes('Central Japan Railway Company')) return { className: 'line-central' };
+    if (name.includes('Hokkaido Railway')) return { className: 'line-hokkaido' };
+    if (name.includes('East Japan Railway')) return { className: 'line-east' };
+    if (name.includes('Central Japan Railway')) return { className: 'line-central' };
     if (name.includes('Aoimori Railway')) return { className: 'line-central' };
     if (name.includes('Ainokaze Toyama Railway')) return { className: 'line-west' };
-    if (name.includes('West Japan Railway Company')) return { className: 'line-west' };
+    if (name.includes('West Japan Railway')) return { className: 'line-west' };
     if (name.includes('Shikoku Railway')) return { className: 'line-shikoku' };
     if (name.includes('Tokyo Monorail')) return { className: 'line-shikoku' };
-    if (name.includes('Kyushu Railway Company')) return { className: 'line-kyushu' };
+    if (name.includes('Kyushu Railway')) return { className: 'line-kyushu' };
     if (name.includes('Ishikawa Railway')) return { className: 'line-other' };
     return { className: 'line-default' };
   },
@@ -36,7 +36,10 @@ const geoJsonOptions = {
 const stationOptions = {
   pane: 'markerPane',
   pointToLayer: (feature, latlng) =>
-    L.circleMarker(latlng, { className: 'station-marker' }),
+    L.circleMarker(latlng, {
+      className: 'station-marker',
+      radius: 6 // Increased size for better visibility compared to lines
+    }),
   onEachFeature: (feature, layer) => {
     const nameJP = feature.properties.n02_005 || 'Unknown';
     const nameEN = feature.properties.n02_005_en || '';
@@ -70,8 +73,10 @@ async function safeFetchJSON(url) {
 }
 
 // Load base tiles
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  attribution: '© OpenStreetMap contributors',
+// L.tileLayer('https://a.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', { // Humanity
+// L.tileLayer('https://tile.thunderforest.com/outdoors/{z}/{x}/{y}.png?apikey=${MAP_API_KEY}', { // Thunderforest Outdoor
+L.tileLayer(`https://tile.thunderforest.com/neighbourhood/{z}/{x}/{y}.png?apikey=${MAP_API_KEY}`, { // Thunderforest Neighborhood
+  attribution: '&copy; <a href="https://www.maptiler.com/">MapTiler</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>',
 }).addTo(map);
 
 const loadingSpinner = L.control({position: 'topleft'});
@@ -117,17 +122,26 @@ function updateLineLayer() {
       lineLayer = L.geoJSON(data, {
         style: (feature) => {
           const name = feature.properties.n02_004_en || '';
-          if (name.includes('Hokkaido Railway Company')) return { className: 'line-hokkaido' };
-          if (name.includes('East Japan Railway Company')) return { className: 'line-east' };
-          if (name.includes('Central Japan Railway Company')) return { className: 'line-central' };
-          if (name.includes('Aoimori Railway')) return { className: 'line-central' };
-          if (name.includes('Ainokaze Toyama Railway')) return { className: 'line-west' };
-          if (name.includes('West Japan Railway Company')) return { className: 'line-west' };
-          if (name.includes('Shikoku Railway')) return { className: 'line-shikoku' };
-          if (name.includes('Tokyo Monorail')) return { className: 'line-shikoku' };
-          if (name.includes('Kyushu Railway Company')) return { className: 'line-kyushu' };
-          if (name.includes('Ishikawa Railway')) return { className: 'line-other' };
-          return { className: 'line-default' };
+          const lineName = feature.properties.n02_003_en || '';
+          const classes = [];
+
+          if (name.includes('Hokkaido Railway')) classes.push('line-hokkaido');
+          else if (name.includes('East Japan Railway')) classes.push('line-east');
+          else if (name.includes('Central Japan Railway')) classes.push('line-central');
+          else if (name.includes('Aoimori Railway')) classes.push('line-central');
+          else if (name.includes('Ainokaze Toyama Railway')) classes.push('line-west');
+          else if (name.includes('West Japan Railway')) classes.push('line-west');
+          else if (name.includes('Shikoku Railway')) classes.push('line-shikoku');
+          else if (name.includes('Tokyo Monorail')) classes.push('line-shikoku');
+          else if (name.includes('Kyushu Railway')) classes.push('line-kyushu');
+          else if (name.includes('Ishikawa Railway')) classes.push('line-other');
+          else classes.push('line-default');
+
+          if (lineName.includes('Shinkansen')) {
+            classes.push('line-shinkansen');
+          }
+
+          return { className: classes.join(' ') };
         },
         onEachFeature: (feature, layer) => {
           const operatorJP = feature.properties.n02_003 || 'Unknown';
@@ -158,7 +172,10 @@ fetch(`${API_BASE_URL}/api/stations`)
     stationLayer = L.geoJSON(data, {
       pane: 'markerPane',
       pointToLayer: (feature, latlng) =>
-        L.circleMarker(latlng, { className: 'station-marker' }),
+        L.circleMarker(latlng, {
+          className: 'station-marker',
+          radius: 6 // Increased size for better visibility compared to lines
+        }),
       onEachFeature: (feature, layer) => {
         const nameJP = feature.properties.n02_005 || 'Unknown';
         const nameEN = feature.properties.n02_005_en || '';
@@ -231,77 +248,3 @@ map.on('zoomend', adjustLineThickness);
 
 let geoLayer = null;
 let geoStationLayer = null;
-let schematicLayer = null;
-let schematicStationLayer = null;
-let currentView = "geographic";
-let schematicLoaded = false;
-
-
-// Add toggle button
-const viewToggle = L.control({position: 'topright'});
-
-viewToggle.onAdd = function (map) {
-    const div = L.DomUtil.create('div', 'view-toggle');
-    div.innerHTML = `
-      <button id="toggleViewBtn">Switch to Schematic View</button>
-    `;
-    return div;
-};
-
-viewToggle.addTo(map);
-
-document.getElementById('toggleViewBtn').addEventListener('click', async () => {
-    if (currentView === "geographic") {
-        if (!schematicLoaded) {
-            document.getElementById('spinner').style.display = 'block'; // Show spinner
-
-            // Lazy load schematic data
-            const [schematicLinesData, schematicStationsData] = await Promise.all([
-                safeFetchJSON(`${API_BASE_URL}/api/lines`),
-                safeFetchJSON(`${API_BASE_URL}/api/stations`)
-            ]);
-
-            // Apply schematic styling
-            schematicLayer = L.geoJSON(schematicLinesData, {
-                style: feature => ({
-                    color: '#ff00ff', // Pink lines for schematic
-                    weight: 3,
-                    opacity: 0.9
-                })
-            });
-
-            schematicStationLayer = L.geoJSON(schematicStationsData, {
-                pointToLayer: (feature, latlng) => {
-                    return L.circleMarker(latlng, {
-                        radius: 8,
-                        fillColor: "#00ffff", // Light blue stations
-                        color: "#000",
-                        weight: 1,
-                        opacity: 1,
-                        fillOpacity: 0.8
-                    });
-                }
-            });
-
-            schematicLoaded = true;
-
-            document.getElementById('spinner').style.display = 'none'; // Hide spinner
-        }
-
-        // Switch to schematic
-        if (lineLayer) map.removeLayer(lineLayer);
-        if (stationLayer) map.removeLayer(stationLayer);
-        schematicLayer.addTo(map);
-        schematicStationLayer.addTo(map);
-        document.getElementById('toggleViewBtn').innerText = "Switch to Geographic View";
-        currentView = "schematic";
-    } else {
-        // Switch back to geographic
-        if (schematicLayer) map.removeLayer(schematicLayer);
-        if (schematicStationLayer) map.removeLayer(schematicStationLayer);
-        lineLayer.addTo(map);
-        stationLayer.addTo(map);
-        document.getElementById('toggleViewBtn').innerText = "Switch to Schematic View";
-        currentView = "geographic";
-    }
-});
