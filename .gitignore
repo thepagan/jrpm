@@ -210,3 +210,8 @@ xcuserdata/
 translations.sql.bak
 missing.sql
 compare.py
+translations/
+translations/base_files/
+translations/base_files/*
+translations/*
+.env

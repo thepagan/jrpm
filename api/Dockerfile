@@ -13,9 +13,10 @@ RUN apt-get update && apt-get install -y gcc libpq-dev && rm -rf /var/lib/apt/li
 # Install Python dependencies
 COPY requirements.txt .
 RUN pip install --upgrade pip && pip install -r requirements.txt
+RUN pip install gunicorn
 
 # Copy project files
 COPY . .
 
 # Run the app
-CMD ["python", "app.py"]
+CMD ["gunicorn", "-b", "0.0.0.0:5050", "app:app", "--workers=4", "--threads=2"]
