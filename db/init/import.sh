@@ -40,7 +40,7 @@ apply_post_import_processing() {
   psql -h /var/run/postgresql -U postgres -d jrpm -f /docker-entrypoint-initdb.d/data/translations.sql > /dev/null 2>&1
   echo "✅ Translations applied!"
   echo "Applying PGRouting tables and indexes"
-  psql -h /var/run/postgresql -U postgres -d jrpm -f /docker-entrypoint-initdb.d/data/pgrouting.sql > /dev/null 2>&1
+  psql -h /var/run/postgresql -U postgres -d jrpm -f /docker-entrypoint-initdb.d/data/pgrouting.sql > /dev/null
   echo "✅ PGRouting applied!"
   echo "✅ Post-import processing complete."
 }

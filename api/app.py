@@ -30,11 +30,15 @@ def get_geojson(table_name):
 
 @app.route("/api/stations")
 def stations():
-    return jsonify(get_geojson("jr_stations_pgr"))
+    return jsonify(get_geojson("jr_stations"))
 
 @app.route("/api/lines")
 def lines():
     return jsonify(get_geojson("jr_lines"))
+
+@app.route("/api/stations_pgr")
+def stations_pgr():
+    return jsonify(get_geojson("jr_stations_pgr"))
 
 
 # Route for pgRouting route between two station IDs
@@ -44,12 +48,20 @@ def route(start_id, end_id):
         with conn.cursor() as cur:
             cur.execute("""
                 SELECT seq, node, edge, cost,
-                       ST_AsGeoJSON(vs.the_geom)::json
+                       ST_AsGeoJSON(vs.the_geom)::json,
+                       s.n02_005 AS station_name,
+                       s.n02_005_en AS station_name_en
                 FROM pgr_dijkstra(
                     'SELECT id, source, target, cost, reverse_cost FROM jr_edges',
                     %s, %s, directed := false
                 ) AS route
                 LEFT JOIN jr_edges_vertices_pgr AS vs ON route.node = vs.id
+                LEFT JOIN LATERAL (
+                    SELECT n02_005, n02_005_en
+                    FROM jr_stations_pgr
+                    ORDER BY geom <-> vs.the_geom
+                    LIMIT 1
+                ) AS s ON true
             """, (start_id, end_id))
             rows = cur.fetchall()
             return jsonify([
@@ -58,7 +70,9 @@ def route(start_id, end_id):
                     "node": r[1],
                     "edge": r[2],
                     "cost": r[3],
-                    "geom": r[4]
+                    "geom": r[4],
+                    "station_name": r[5],
+                    "station_name_en": r[6]
                 }
                 for r in rows
             ])

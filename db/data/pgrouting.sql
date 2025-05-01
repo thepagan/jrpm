@@ -18,7 +18,7 @@ FROM (
     SELECT (ST_Dump(geom)).geom::geometry(LineString, 6668) AS geom_6668
     FROM jr_lines
 ) AS exploded
-WHERE ST_NPoints(geom_6668) = 2;
+WHERE ST_NPoints(geom_6668) > 1;
 
 ALTER TABLE jr_edges ADD COLUMN source bigint;
 ALTER TABLE jr_edges ADD COLUMN target bigint;
