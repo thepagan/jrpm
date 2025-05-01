@@ -3,15 +3,31 @@ import { loadLines } from './lines.js';
 import { loadStations } from './stations.js';
 import { adjustLineThickness } from './adjustments.js';
 import { safeFetchJSON, API_BASE_URL } from './utils.js';
+import { loadGoogleMapsAPI } from './config.js';
 
 const selectedCoords = {
   start: null,
   end: null
 };
 
+export function loadGoogleMapsAPI() {
+  return new Promise((resolve, reject) => {
+    if (window.google && window.google.maps) return resolve(window.google);
+
+    const script = document.createElement('script');
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_API_KEY}&libraries=places`;
+    script.async = true;
+    script.defer = true;
+    script.onload = () => resolve(window.google);
+    script.onerror = reject;
+    document.head.appendChild(script);
+  });
+}
+
 async function initialize() {
   console.log('🚀 Initializing map and stations...');
   try {
+    await loadGoogleMapsAPI();
     await loadLines();
     console.log('✅ Lines loaded.');
     await loadStations();
@@ -91,9 +107,11 @@ async function planRoute() {
 
     console.log(`Start station: ${startRes.name} (${startRes.id})`);
     console.log(`End station: ${endRes.name} (${endRes.id})`);
+    console.log(`Start station coords:`, startRes.geom?.coordinates || 'N/A');
+    console.log(`End station coords:`, endRes.geom?.coordinates || 'N/A');
 
     // Step 2: Get route from pgRouting API
-    const routeRes = await safeFetchJSON(`${API_BASE_URL}/api/route/${startRes.id}/${endRes.id}`);
+    const routeRes = await safeFetchJSON(`${API_BASE_URL}/api/route/${startRes.node_id}/${endRes.node_id}`);
     if (!Array.isArray(routeRes) || routeRes.length === 0) {
       throw new Error('No route returned from pgRouting.');
     }

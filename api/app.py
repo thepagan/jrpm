@@ -30,7 +30,7 @@ def get_geojson(table_name):
 
 @app.route("/api/stations")
 def stations():
-    return jsonify(get_geojson("jr_stations"))
+    return jsonify(get_geojson("jr_stations_pgr"))
 
 @app.route("/api/lines")
 def lines():
@@ -43,18 +43,13 @@ def route(start_id, end_id):
     with psycopg2.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
             cur.execute("""
-                SELECT seq, node, edge, cost, 
-                       s.name as source_name, 
-                       s.geom as source_geom, 
-                       t.name as target_name, 
-                       t.geom as target_geom
+                SELECT seq, node, edge, cost,
+                       ST_AsGeoJSON(vs.the_geom)::json
                 FROM pgr_dijkstra(
                     'SELECT id, source, target, cost, reverse_cost FROM jr_edges',
                     %s, %s, directed := false
                 ) AS route
                 LEFT JOIN jr_edges_vertices_pgr AS vs ON route.node = vs.id
-                LEFT JOIN jr_stations AS s ON route.node = s.id
-                LEFT JOIN jr_stations AS t ON route.node = t.id
             """, (start_id, end_id))
             rows = cur.fetchall()
             return jsonify([
@@ -63,10 +58,7 @@ def route(start_id, end_id):
                     "node": r[1],
                     "edge": r[2],
                     "cost": r[3],
-                    "source_name": r[4],
-                    "source_geom": r[5],
-                    "target_name": r[6],
-                    "target_geom": r[7]
+                    "geom": r[4]
                 }
                 for r in rows
             ])
@@ -83,10 +75,16 @@ def nearest_station():
     with psycopg2.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
             cur.execute("""
-                SELECT gid, n02_005, ST_AsGeoJSON(geom)::json,
-                       ST_Distance(geom::geography, ST_SetSRID(ST_MakePoint(%s, %s), 4326)::geography) AS dist
-                FROM jr_stations
-                ORDER BY geom <-> ST_SetSRID(ST_MakePoint(%s, %s), 4326)
+                SELECT s.gid, s.n02_005, ST_AsGeoJSON(s.geom)::json,
+                       ST_Distance(s.geom::geography, ST_Transform(ST_SetSRID(ST_MakePoint(%s, %s), 4326), 6668)::geography) AS dist,
+                       (
+                           SELECT id
+                           FROM jr_edges_vertices_pgr
+                           ORDER BY the_geom <-> s.geom
+                           LIMIT 1
+                       ) AS nearest_node
+                FROM jr_stations_pgr AS s
+                ORDER BY s.geom <-> ST_Transform(ST_SetSRID(ST_MakePoint(%s, %s), 4326), 6668)
                 LIMIT 1;
             """, (lon, lat, lon, lat))
             row = cur.fetchone()
@@ -94,7 +92,8 @@ def nearest_station():
                 "id": row[0],
                 "name": row[1],
                 "geom": row[2],
-                "distance_m": row[3]
+                "distance_m": row[3],
+                "node_id": row[4]
             })
 
 if __name__ == "__main__":

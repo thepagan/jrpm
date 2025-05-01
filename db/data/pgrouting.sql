@@ -33,18 +33,16 @@ UPDATE jr_edges SET reverse_cost = cost;
 CREATE INDEX idx_jr_edges_geom ON jr_edges USING GIST (geom);
 CREATE INDEX idx_jr_edges_vertices_pgr_geom ON jr_edges_vertices_pgr USING GIST (the_geom);
 
+-- Create pgRouting-compatible station point table
+DROP TABLE IF EXISTS jr_stations_pgr;
 
--- Fix incorrect geometry type in jr_stations
-ALTER TABLE jr_stations DROP COLUMN geom;
-ALTER TABLE jr_stations ADD COLUMN geom geometry(Point, 6668);
+CREATE TABLE jr_stations_pgr AS
+SELECT
+    gid,
+    n02_001, n02_002, n02_003, n02_004, n02_005,
+    n02_005c, n02_005g, n02_003_en, n02_004_en, n02_005_en,
+    ST_Centroid(ST_CollectionExtract(geom, 2))::geometry(Point, 6668) AS geom
+FROM jr_stations;
 
--- Populate with schematic points
-UPDATE jr_stations
-SET geom = geom_schematic;
-
--- Drop schematic column
-ALTER TABLE jr_stations DROP COLUMN geom_schematic;
-
--- Recreate spatial index
-DROP INDEX IF EXISTS idx_jr_stations_geom;
-CREATE INDEX idx_jr_stations_geom ON jr_stations USING GIST (geom);
+-- Index for spatial queries
+CREATE INDEX idx_jr_stations_pgr_geom ON jr_stations_pgr USING GIST (geom);

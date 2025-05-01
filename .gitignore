@@ -215,6 +215,6 @@ translations/base_files/
 translations/base_files/*
 translations/*
 .env
-app/config.js
+app/static/js/config.js
 old_backups
 old_backups/*
