@@ -1,0 +1,11 @@
+name_en,is_scenic,has_green_car
+Tokaido Shinkansen,False,True
+Sanyo Shinkansen,False,True
+Hokuriku Shinkansen,True,True
+Narita Express,False,True
+Resort Shirakami,True,True
+Gono Line,True,False
+Yamanote Line,False,False
+Hisatsu Line,True,False
+Limited Express Azusa,True,True
+Joetsu Shinkansen,False,True

@@ -38,3 +38,19 @@
 - [ ] Zorrito-style mascot integration with outfits, moods, or weather-reactive states
 - [ ] Save/print/share planned routes
 - [ ] Mobile-friendly responsive interface
+
+
+🛠 Future Upgrade: Bundler Setup
+	•	Install and configure Vite or Rollup for the JR Pass Map project.
+	•	Build all modular JavaScript (map.js, lines.js, stations.js, etc.) into one minimized bundle.js.
+	•	Update index.html to load only bundle.js instead of individual scripts.
+	•	Set up build scripts (npm run build) for easy regeneration.
+	•	(Optional) Minify CSS at the same time for faster load.
+
+⸻
+
+🔒 Future Upgrade: Structure Hiding
+	•	Hide /static/js/ structure from direct browser access by not serving raw JS files.
+	•	Only serve compressed dist/ output (e.g., bundle.js, bundle.css).
+	•	Add .gitignore rules to avoid committing raw node_modules or sensitive dev files.
+	•	(Optional Advanced) Enable server-level restrictions to deny access to raw JS during production deployment.

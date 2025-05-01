@@ -1,24 +1,60 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>JR Pass Map</title>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
-  <link rel="stylesheet" href="style.css?v=1" />
-  <script src="config.js"></script>
-  <style>
-    html, body, #map {
-      height: 100%;
-      margin: 0;
-    }
-  </style>
+  <meta charset="UTF-8">
+  <title>JR Pass Route Planner</title>
+
+  <!-- Load Leaflet CSS -->
+  <link rel="stylesheet" href="static/css/leaflet.css" />
+
+  <!-- Load Leaflet JS synchronously (no defer/async) -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <!-- Load Google Maps JS API for Places library (stable) -->
+  <script
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBNEzAZ_oPBcqiy20Dgcavik-9kAzU_lSg&libraries=places"
+    defer
+    async>
+  </script>
+
+  <!-- Your local styles -->
+  <link rel="stylesheet" href="static/css/style.css">
 </head>
 <body>
-  <div id="map"></div>
 
-  <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+<div id="route-planner">
+  <h1>JR Pass Route Planner</h1>
 
-  <script src="main.js"></script>
+  <div class="address-inputs">
+    <div class="input-group">
+      <label for="start-address">Start Address:</label>
+      <input type="text" id="start-address" placeholder="Enter Start Address" />
+    </div>
+
+    <div class="input-group">
+      <label for="end-address">End Address:</label>
+      <input type="text" id="end-address" placeholder="Enter End Address" />
+    </div>
+
+    <button id="plan-route">Plan Route</button>
+  </div>
+
+  <div id="route-summary" class="hidden">
+    <h2>Route Summary</h2>
+    <div id="route-steps">
+      <!-- Walking + Train + Walking segments go here -->
+    </div>
+    <div id="total-time">
+      <!-- Estimated total time will show here -->
+    </div>
+  </div>
+
+</div>
+
+<div id="map" style="height: 600px; margin-top: 20px;"></div>
+
+<!-- Load your main JS after Leaflet is available -->
+<script type="module" src="static/js/index.js"></script>
+
 </body>
 </html>

@@ -39,6 +39,9 @@ apply_post_import_processing() {
   echo "Applying translations from translations.sql..."
   psql -h /var/run/postgresql -U postgres -d jrpm -f /docker-entrypoint-initdb.d/data/translations.sql > /dev/null 2>&1
   echo "✅ Translations applied!"
+  echo "Applying PGRouting tables and indexes"
+  psql -h /var/run/postgresql -U postgres -d jrpm -f /docker-entrypoint-initdb.d/data/pgrouting.sql > /dev/null 2>&1
+  echo "✅ PGRouting applied!"
   echo "✅ Post-import processing complete."
 }
 
@@ -48,10 +51,10 @@ until pg_isready -q -h /var/run/postgresql -U postgres; do
   sleep 1
 done
 
-echo "Enabling PostGIS extension..."
+echo "Enabling PostGIS & PGRouting extension..."
 psql -h /var/run/postgresql -U postgres -d jrpm -c "CREATE EXTENSION IF NOT EXISTS postgis;" > /dev/null 2>&1
+psql -h /var/run/postgresql -U postgres -d jrpm -c "CREATE EXTENSION IF NOT EXISTS pgrouting;" > /dev/null 2>&1
 
-# Import script modifications
 echo 'Dropping and recreating tables...'
 (
 psql -h /var/run/postgresql -U postgres -d jrpm <<EOF
@@ -79,6 +82,7 @@ CREATE TABLE jr_lines (
     geom geometry(MultiLineString, 6668)
 );
 CREATE INDEX idx_jr_lines_geom ON jr_lines USING GIST (geom);
+
 EOF
 ) > /dev/null 2>&1
 

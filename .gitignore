@@ -216,3 +216,5 @@ translations/base_files/*
 translations/*
 .env
 app/config.js
+old_backups
+old_backups/*

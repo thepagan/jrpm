@@ -1,0 +1,29 @@
+name_en,is_scenic,has_green_car,is_jr_pass_eligible
+Tokaido Shinkansen,False,True,True
+Sanyo Shinkansen,False,True,True
+Hokuriku Shinkansen,True,True,True
+Tohoku Shinkansen,False,True,True
+Hokkaido Shinkansen,False,True,True
+Kyushu Shinkansen,True,True,True
+Joetsu Shinkansen,False,True,True
+Narita Express,False,True,True
+Super View Odoriko,True,True,True
+Thunderbird Limited Express,True,True,True
+Resort Shirakami,True,True,True
+Gono Line,True,False,True
+Hisatsu Line,True,False,True
+Chuo Main Line,True,False,True
+Yamanote Line,False,False,True
+Osaka Loop Line,False,False,True
+Sanyo Main Line,True,False,True
+Kagoshima Main Line,False,False,True
+Chikuhō Main Line,False,False,True
+Kure Line,True,False,True
+Hakodate Main Line,True,False,True
+Yosan Line,True,False,True
+Dosan Line,True,False,True
+Uetsu Main Line,True,False,True
+Nichinan Line,True,False,True
+Sekisho Line,True,False,True
+Aoimori Railway (Hachinohe to Aomori),False,False,True
+IR Ishikawa Railway (Kanazawa to Tsubata),False,False,True

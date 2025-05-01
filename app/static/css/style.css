@@ -1,0 +1,298 @@
+/* 🌎 Base Page Styling */
+body {
+  background: #fff;
+  margin: 0;
+  padding: 0;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+}
+
+/* 📌 Popup Styling */
+.custom-popup {
+  background-color: #ffffff;
+  color: #000000;
+  font-size: 14px;
+  padding: 8px;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  min-width: 100px;
+  max-width: 300px;
+}
+
+/* 🚉 Station Marker Styling */
+.station-marker {
+  stroke: #000000;
+  fill: #000000;
+  stroke-width: 2;
+  fill-opacity: 1;
+  r: 6;
+  transition: all 0.2s ease-in-out;
+  filter: drop-shadow(0 0 2px #00000088);
+}
+
+.station-marker-hover {
+  stroke: #FFD700;
+  fill: #FFD700;
+  r: 8;
+  filter: brightness(1.3) drop-shadow(0 0 6px #FFD700);
+}
+
+.station-hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* 🚄 JR Line Styling */
+.line-hokkaido,
+.line-east,
+.line-central,
+.line-west,
+.line-shikoku,
+.line-kyushu,
+.line-monorail,
+.line-other,
+.line-shinkansen,
+.line-default {
+  stroke-width: 1.5;
+}
+
+.line-hokkaido {
+  stroke: #008080; /* Deep Teal */
+  fill: none;
+}
+
+.line-east {
+  stroke: #FF00FF; /* Fuchsia */
+  fill: none;
+}
+
+.line-central {
+  stroke: #FFA500; /* Gold/Orange */
+  fill: none;
+}
+
+.line-west {
+  stroke: #FF0000; /* Bright Red */
+  fill: none;
+}
+
+.line-shikoku {
+  stroke: #00FFFF; /* Aqua */
+  fill: none;
+}
+
+.line-kyushu {
+  stroke: #DC143C; /* Crimson */
+  fill: none;
+}
+
+.line-monorail {
+  stroke: #C0C0C0; /* Silver */
+  fill: none;
+}
+
+.line-other {
+  stroke: #C0C0C0; /* Silver */
+  fill: none;
+}
+
+/* 🚅 Shinkansen Line Styling */
+.line-shinkansen {
+  stroke: #9B30FF; /* Electric Purple */
+  fill: none;
+}
+
+.line-shinkansen:hover {
+  filter: brightness(1.6) drop-shadow(0 0 8px #9B30FF);
+}
+
+/* 🚆 Default Line Styling (non-matching operators) */
+.line-default {
+  stroke: rgba(0, 0, 0, 0.15);
+  stroke-width: 1;
+  fill: none;
+}
+
+/* ✨ Hover Effects for All Lines */
+.line-hokkaido:hover,
+.line-east:hover,
+.line-central:hover,
+.line-west:hover,
+.line-shikoku:hover,
+.line-kyushu:hover,
+.line-default:hover {
+  filter: brightness(1.4) drop-shadow(0 0 6px currentColor);
+}
+
+/* 🚦 Optional: Highlight Selected Lines (ready for future interaction) */
+.line-faded {
+  opacity: 0.2;
+  transition: opacity 0.3s ease;
+}
+
+.line-highlighted {
+  opacity: 1;
+  stroke-width: 4;
+  filter: brightness(1.6) drop-shadow(0 0 8px currentColor);
+}
+
+/* ✨ Selected Station Styling */
+.station-selected {
+  stroke: #32CD32; /* Lime Green */
+  fill: #32CD32; /* Lime Green */
+  r: 10;
+  filter: brightness(1.5) drop-shadow(0 0 10px #32CD32);
+  transition: all 0.3s ease;
+}
+
+/* ==================================================
+   🚉 JR Pass Route Planner Panel Styling
+   ================================================== */
+
+#route-planner {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+h1 {
+  font-size: 24px;
+  margin-bottom: 15px;
+}
+
+.address-inputs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.input-group {
+  flex: 1 1 300px;
+  display: flex;
+  flex-direction: column;
+  position: relative; /* Added */
+}
+
+.input-group label {
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.input-group input {
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 16px;
+}
+
+#plan-route {
+  padding: 12px 20px;
+  background: #0078D7;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+#plan-route:hover {
+  background: #005a9c;
+}
+
+#route-summary {
+  margin-top: 20px;
+  background: #f9f9f9;
+  padding: 15px;
+  border-radius: 5px;
+}
+
+.hidden {
+  display: none;
+}
+
+#route-steps {
+  margin-bottom: 10px;
+}
+
+#total-time {
+  font-weight: bold;
+}
+
+#collapse-summary {
+  display: block;
+  margin: 10px auto 0 auto;
+  padding: 8px 16px;
+  background: #e0e0e0;
+  color: #333;
+  border: none;
+  border-radius: 5px;
+  font-size: 14px;
+  cursor: pointer;
+  z-index: 1;
+  position: relative;
+}
+
+#collapse-summary:hover {
+  background: #cccccc;
+}
+
+.autocomplete-results {
+  background: white;
+  border: 1px solid #ccc;
+  max-height: 150px;
+  overflow-y: auto;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin-top: 2px;
+  z-index: 1000;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.suggestion-item {
+  padding: 8px 12px;
+  border-bottom: 1px solid #ddd;
+  cursor: pointer;
+}
+
+.suggestion-item:hover {
+  background-color: #f0f0f0;
+}
+
+gmp-placeautocomplete {
+  display: block;
+  width: 100%;
+  margin-bottom: 10px;
+  box-sizing: border-box;
+  min-height: 48px; /* Adjusted for better visual balance */
+  padding: 8px 12px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background: white;
+  color: #333;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+gmp-placeautocomplete:focus-within {
+  border-color: #0078D7;
+  box-shadow: 0 0 5px rgba(0, 120, 215, 0.5);
+}
+
+/* ✨ Styling for gmp-placeautocomplete input */
+gmp-placeautocomplete::part(input) {
+  padding: 10px;
+  font-size: 16px;
+  border: none; /* No border here; parent gmp has it */
+  background: transparent;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+gmp-placeautocomplete::part(input):focus {
+  outline: none;
+}

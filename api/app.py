@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from flask_cors import CORS
 import psycopg2
 import os
@@ -36,103 +36,66 @@ def stations():
 def lines():
     return jsonify(get_geojson("jr_lines"))
 
-from flask import jsonify
 
-@app.route('/api/schematic-lines')
-def schematic_lines():
+# Route for pgRouting route between two station IDs
+@app.route("/api/route/<int:start_id>/<int:end_id>")
+def route(start_id, end_id):
     with psycopg2.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
             cur.execute("""
-                SELECT
-                  gid,
-                  n02_001,
-                  n02_002,
-                  n02_003,
-                  n02_003_en,
-                  n02_004,
-                  n02_004_en,
-                  n02_005,
-                  n02_005_en,
-                  n02_005c,
-                  n02_005g,
-                  COALESCE(ST_AsGeoJSON(geom_schematic), ST_AsGeoJSON(geom))
-                FROM jr_lines;
-            """)
+                SELECT seq, node, edge, cost, 
+                       s.name as source_name, 
+                       s.geom as source_geom, 
+                       t.name as target_name, 
+                       t.geom as target_geom
+                FROM pgr_dijkstra(
+                    'SELECT id, source, target, cost, reverse_cost FROM jr_edges',
+                    %s, %s, directed := false
+                ) AS route
+                LEFT JOIN jr_edges_vertices_pgr AS vs ON route.node = vs.id
+                LEFT JOIN jr_stations AS s ON route.node = s.id
+                LEFT JOIN jr_stations AS t ON route.node = t.id
+            """, (start_id, end_id))
             rows = cur.fetchall()
+            return jsonify([
+                {
+                    "seq": r[0],
+                    "node": r[1],
+                    "edge": r[2],
+                    "cost": r[3],
+                    "source_name": r[4],
+                    "source_geom": r[5],
+                    "target_name": r[6],
+                    "target_geom": r[7]
+                }
+                for r in rows
+            ])
 
-    features = []
-    for row in rows:
-        features.append({
-            "type": "Feature",
-            "properties": {
-                "gid": row[0],
-                "n02_001": row[1],
-                "n02_002": row[2],
-                "n02_003": row[3],
-                "n02_003_en": row[4],
-                "n02_004": row[5],
-                "n02_004_en": row[6],
-                "n02_005": row[7],
-                "n02_005_en": row[8],
-                "n02_005c": row[9],
-                "n02_005g": row[10],
-            },
-            "geometry": json.loads(row[11])
-        })
+# Route to find the nearest station to a given latitude and longitude
+@app.route("/api/nearest_station")
+def nearest_station():
+    lat = request.args.get('lat', type=float)
+    lon = request.args.get('lon', type=float)
 
-    return jsonify({
-        "type": "FeatureCollection",
-        "features": features
-    })
+    if lat is None or lon is None:
+        return jsonify({"error": "Missing lat or lon"}), 400
 
-@app.route('/api/schematic-stations')
-def schematic_stations():
     with psycopg2.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
             cur.execute("""
-                SELECT
-                  gid,
-                  n02_001,
-                  n02_002,
-                  n02_003,
-                  n02_003_en,
-                  n02_004,
-                  n02_004_en,
-                  n02_005,
-                  n02_005_en,
-                  n02_005c,
-                  n02_005g,
-                  COALESCE(ST_AsGeoJSON(geom_schematic), ST_AsGeoJSON(geom))
-                FROM jr_stations;
-            """)
-            rows = cur.fetchall()
-
-    features = []
-    for row in rows:
-        features.append({
-            "type": "Feature",
-            "properties": {
-                "gid": row[0],
-                "n02_001": row[1],
-                "n02_002": row[2],
-                "n02_003": row[3],
-                "n02_003_en": row[4],
-                "n02_004": row[5],
-                "n02_004_en": row[6],
-                "n02_005": row[7],
-                "n02_005_en": row[8],
-                "n02_005c": row[9],
-                "n02_005g": row[10],
-            },
-            "geometry": json.loads(row[11])
-        })
-
-    return jsonify({
-        "type": "FeatureCollection",
-        "features": features
-    })
-
-
+                SELECT gid, n02_005, ST_AsGeoJSON(geom)::json,
+                       ST_Distance(geom::geography, ST_SetSRID(ST_MakePoint(%s, %s), 4326)::geography) AS dist
+                FROM jr_stations
+                ORDER BY geom <-> ST_SetSRID(ST_MakePoint(%s, %s), 4326)
+                LIMIT 1;
+            """, (lon, lat, lon, lat))
+            row = cur.fetchone()
+            return jsonify({
+                "id": row[0],
+                "name": row[1],
+                "geom": row[2],
+                "distance_m": row[3]
+            })
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5050)
