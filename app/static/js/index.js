@@ -4,13 +4,7 @@ import { loadStations } from './stations.js';
 import { adjustLineThickness } from './adjustments.js';
 import { safeFetchJSON, API_BASE_URL } from './utils.js';
 import { loadGoogleMapsAPI } from './config.js';
-import { planRoute } from './routeFinder.js';
-
-const selectedCoords = {
-  start: null,
-  end: null
-};
-
+import { planRoute, selectedCoords } from './routeFinder.js';
 
 async function initialize() {
   console.log('🚀 Initializing map and stations...');

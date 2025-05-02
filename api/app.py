@@ -47,15 +47,19 @@ def route(start_id, end_id):
     with psycopg2.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
             cur.execute("""
-                SELECT seq, node, edge, cost,
+                SELECT route.seq, route.node, route.edge, route.cost,
                        ST_AsGeoJSON(vs.the_geom)::json,
                        s.n02_005 AS station_name,
-                       s.n02_005_en AS station_name_en
-                FROM pgr_dijkstra(
-                    'SELECT id, source, target, cost, reverse_cost FROM jr_edges',
+                       s.n02_005_en AS station_name_en,
+                       e.n02_003 AS line_name,
+                       e.n02_003_en AS line_name_en,
+                       ST_AsGeoJSON(e.geom)::json AS edge_geom
+                SELECT * FROM pgr_dijkstra(
+                    'SELECT id, source, target, weighted_cost AS cost, reverse_cost FROM jr_edges',
                     %s, %s, directed := false
                 ) AS route
                 LEFT JOIN jr_edges_vertices_pgr AS vs ON route.node = vs.id
+                LEFT JOIN jr_edges AS e ON route.edge = e.id
                 LEFT JOIN LATERAL (
                     SELECT n02_005, n02_005_en
                     FROM jr_stations_pgr
@@ -72,7 +76,10 @@ def route(start_id, end_id):
                     "cost": r[3],
                     "geom": r[4],
                     "station_name": r[5],
-                    "station_name_en": r[6]
+                    "station_name_en": r[6],
+                    "line_name": r[7],
+                    "line_name_en": r[8],
+                    "edge_geom": r[9]
                 }
                 for r in rows
             ])

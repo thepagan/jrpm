@@ -13,11 +13,22 @@ SELECT
     ST_StartPoint(geom_6668)::geometry(Point, 6668) AS source_geom,
     ST_EndPoint(geom_6668)::geometry(Point, 6668) AS target_geom,
     geom_6668 AS geom,
-    ST_Length(geom_6668::geography) AS cost
+    ST_Length(geom_6668::geography) AS cost,
+    l.n02_002,
+    l.n02_003,
+    l.n02_004,
+    l.n02_003_en,
+    l.n02_004_en
 FROM (
-    SELECT (ST_Dump(geom)).geom::geometry(LineString, 6668) AS geom_6668
-    FROM jr_lines
-) AS exploded
+    SELECT
+        (ST_Dump(geom)).geom::geometry(LineString, 6668) AS geom_6668,
+        jl.n02_002,
+        jl.n02_003,
+        jl.n02_004,
+        jl.n02_003_en,
+        jl.n02_004_en
+    FROM jr_lines jl
+) AS l
 WHERE ST_NPoints(geom_6668) > 1;
 
 ALTER TABLE jr_edges ADD COLUMN source bigint;
