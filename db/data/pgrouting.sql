@@ -40,6 +40,18 @@ SELECT pgr_createTopology('jr_edges', 0.0001, 'geom', 'id', 'source', 'target');
 ALTER TABLE jr_edges ADD COLUMN reverse_cost double precision;
 UPDATE jr_edges SET reverse_cost = cost;
 
+-- Add weighted cost based on n02_002
+ALTER TABLE jr_edges ADD COLUMN weighted_cost double precision;
+
+UPDATE jr_edges SET weighted_cost =
+  CASE n02_002
+    WHEN '1' THEN cost * 0.5   -- Shinkansen
+    WHEN '2' THEN cost * 0.8   -- Limited Express
+    WHEN '3' THEN cost         -- Rapid
+    WHEN '4' THEN cost * 1.2   -- Local
+    ELSE cost * 3.0            -- Other or unknown
+  END;
+
 -- Spatial index for edges and vertex geometry
 CREATE INDEX idx_jr_edges_geom ON jr_edges USING GIST (geom);
 CREATE INDEX idx_jr_edges_vertices_pgr_geom ON jr_edges_vertices_pgr USING GIST (the_geom);
