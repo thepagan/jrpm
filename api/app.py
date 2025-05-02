@@ -54,7 +54,7 @@ def route(start_id, end_id):
                        e.n02_003 AS line_name,
                        e.n02_003_en AS line_name_en,
                        ST_AsGeoJSON(e.geom)::json AS edge_geom
-                SELECT * FROM pgr_dijkstra(
+                FROM pgr_dijkstra(
                     'SELECT id, source, target, weighted_cost AS cost, reverse_cost FROM jr_edges',
                     %s, %s, directed := false
                 ) AS route
