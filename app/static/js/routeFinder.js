@@ -1,4 +1,5 @@
 import { safeFetchJSON, API_BASE_URL } from './utils.js';
+import { map } from './map.js';
 
 export const selectedCoords = {
   start: null,
@@ -47,15 +48,11 @@ export async function planRoute() {
       }
     }
 
-    const polyline = new google.maps.Polyline({
-      path: routePath,
-      geodesic: true,
-      strokeColor: '#FF0000',
-      strokeOpacity: 1.0,
-      strokeWeight: 4
-    });
-
-    polyline.setMap(map);
+    const leafletPolyline = L.polyline(routePath, {
+      color: '#FF0000',
+      weight: 4,
+      opacity: 1.0
+    }).addTo(map);
 
     // Build a readable text-based summary of the route based on station names and transfers
     const instructionsContainer = document.getElementById('route-instructions');

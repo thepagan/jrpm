@@ -10,12 +10,12 @@ async function initialize() {
   console.log('🚀 Initializing map and stations...');
   try {
     await loadGoogleMapsAPI();
-    await loadLines();
-    console.log('✅ Lines loaded.');
-    await loadStations();
-    console.log('✅ Stations loaded.');
-    adjustLineThickness();
-    map.on('zoomend', adjustLineThickness);
+    //await loadLines();
+    //console.log('✅ Lines loaded.');
+    //await loadStations();
+    //console.log('✅ Stations loaded.');
+    //adjustLineThickness();
+    //map.on('zoomend', adjustLineThickness);
     console.log('✅ Map layers initialized.');
 
     await google.maps.importLibrary("places");
